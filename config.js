@@ -1,3 +1,4 @@
+// config.js
 const firebaseConfig = {
   apiKey: "AIzaSyDW3G9KqiOS_h1-cGoQ7hLiD0RR1oeKGEc",
   authDomain: "jacechatweb.firebaseapp.com",
