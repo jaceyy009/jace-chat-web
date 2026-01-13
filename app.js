@@ -4,6 +4,9 @@
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// ----- GLOBALS -----
+let currentFriendId = null;
+
 // ----- SIGN UP -----
 const signupBtn = document.getElementById('signup-btn');
 signupBtn.addEventListener('click', () => {
@@ -22,6 +25,8 @@ signupBtn.addEventListener('click', () => {
         email: user.email,
         friends: []
       });
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
     })
     .catch((error) => alert(error.message));
 });
@@ -39,6 +44,8 @@ loginBtn.addEventListener('click', () => {
       document.getElementById('auth-container').style.display = 'none';
       document.getElementById('chat-container').style.display = 'block';
       loadFriends();
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
     })
     .catch((error) => alert(error.message));
 });
@@ -56,6 +63,8 @@ addFriendBtn.addEventListener('click', async () => {
   if (!friendSnapshot.empty) {
     const friendId = friendSnapshot.docs[0].id;
 
+    if (friendId === currentUser.uid) return alert("You cannot add yourself");
+
     // Add friend to current user's friends list
     await db.collection('users').doc(currentUser.uid).update({
       friends: firebase.firestore.FieldValue.arrayUnion(friendId)
@@ -71,7 +80,6 @@ addFriendBtn.addEventListener('click', async () => {
 
 // ----- LOAD FRIENDS -----
 async function loadFriends() {
-  async function loadFriends() {
   const currentUser = auth.currentUser;
   const userDoc = await db.collection('users').doc(currentUser.uid).get();
   const friends = userDoc.data().friends || [];
@@ -89,8 +97,9 @@ async function loadFriends() {
     friendSpan.dataset.id = friendId;
     friendSpan.textContent = friendEmail;
     friendSpan.style.cursor = 'pointer';
+    friendSpan.style.color = 'blue';
     friendSpan.addEventListener('click', () => {
-      setupChat(friendId); // start chat with clicked friend
+      setupChat(friendId);
     });
 
     friendsList.appendChild(friendSpan);
@@ -98,14 +107,15 @@ async function loadFriends() {
   });
 }
 
-// ----- CHAT FUNCTIONALITY -----
-let currentFriendId = null;
-
+// ----- SETUP CHAT WITH FRIEND -----
 function setupChat(friendId) {
   currentFriendId = friendId;
   const currentUser = auth.currentUser;
   const chatId = [currentUser.uid, friendId].sort().join('_');
   const chatBox = document.getElementById('chat-box');
+
+  // Clear previous messages
+  chatBox.innerHTML = '';
 
   // Listen for new messages
   db.collection('chats').doc(chatId).collection('messages')
@@ -136,8 +146,17 @@ sendBtn.addEventListener('click', async () => {
     sender: currentUser.uid,
     text: message,
     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-    participants: [currentUser.uid, currentFriendId] // optional, useful for rules
+    participants: [currentUser.uid, currentFriendId]
   });
 
   document.getElementById('message-input').value = '';
+});
+
+// ----- AUTO LOAD FRIENDS WHEN LOGGED IN -----
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById('auth-container').style.display = 'none';
+    document.getElementById('chat-container').style.display = 'block';
+    loadFriends();
+  }
 });
