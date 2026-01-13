@@ -71,6 +71,7 @@ addFriendBtn.addEventListener('click', async () => {
 
 // ----- LOAD FRIENDS -----
 async function loadFriends() {
+  async function loadFriends() {
   const currentUser = auth.currentUser;
   const userDoc = await db.collection('users').doc(currentUser.uid).get();
   const friends = userDoc.data().friends || [];
@@ -81,13 +82,20 @@ async function loadFriends() {
   friends.forEach(async (friendId) => {
     const friendDoc = await db.collection('users').doc(friendId).get();
     const friendEmail = friendDoc.data().email;
-    friendsList.innerHTML += `<span class="friend" data-id="${friendId}">${friendEmail}</span><br>`;
-  });
 
-  // Auto-select first friend for demo
-  if (friends.length > 0) {
-    setupChat(friends[0]);
-  }
+    // Make each friend clickable
+    const friendSpan = document.createElement('span');
+    friendSpan.classList.add('friend');
+    friendSpan.dataset.id = friendId;
+    friendSpan.textContent = friendEmail;
+    friendSpan.style.cursor = 'pointer';
+    friendSpan.addEventListener('click', () => {
+      setupChat(friendId); // start chat with clicked friend
+    });
+
+    friendsList.appendChild(friendSpan);
+    friendsList.appendChild(document.createElement('br'));
+  });
 }
 
 // ----- CHAT FUNCTIONALITY -----
