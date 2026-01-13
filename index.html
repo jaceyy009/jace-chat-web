@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>JaceChat</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js"></script>
+  </head>
+  <body>
+    <div id="auth-container">
+      <h2>Sign Up/Login</h2>
+      <input id="email" placeholder="email@domain.tld">
+      <input id="password" type="password" placeholder="JaceChat12!">
+      <button id="signup-btn">Sign Up</button>
+      <button id="login-btn">Login</button>
+    </div>
+
+    <div id="chat-container" style="display:none;">
+      <h2>Chat App</h2>
+      <div id="friends-list"></div>
+      <input id="friend-email" placeholder="Add friend by email">
+      <button id="add-friend-btn">Add Friend</button>
+
+      <div id="chat-box"></div>
+      <input id="message-input" placeholder="Type a message...">
+      <button id="send-btn">Send</button>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
